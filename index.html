@@ -606,6 +606,64 @@
                             style Out fill:#f1f5f9
                     </div>
                 </div>
+                <div class="project-diagram"
+                    style="margin-top: 20px; background: #fdfdfd; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <p
+                        style="font-size: 0.85rem; font-weight: 600; color: var(--primary); margin-bottom: 15px; text-align: center; text-transform: uppercase; letter-spacing: 1px;">
+                        Mô hình thu thập dữ liệu IoT & Điều phối Real-time
+                    </p>
+                    <div class="project-diagram"
+                        style="margin-top: 20px; background: #fdfdfd; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <p
+                            style="font-size: 0.85rem; font-weight: 600; color: var(--primary); margin-bottom: 15px; text-align: center; text-transform: uppercase; letter-spacing: 1px;">
+                            Mô hình Thu thập & Điều phối Dữ liệu (Publisher-Subscriber)
+                        </p>
+                        <div class="mermaid" style="display: flex; justify-content: center;">
+                            graph TD
+                            %% Tầng thiết bị
+                            subgraph Device_Layer [Tầng thiết bị vật lý]
+                            PLC1[PLC S7-1200/1500]
+                            PLC2[PLC Mitsubishi/LS]
+                            Sensors[Cảm biến Hệ thống]
+                            Sensors --> PLC1
+                            end
+
+                            %% Tầng Gateway
+                            subgraph Gateway_Layer [Kết nối]
+                            GW[IoT Gateway / OPC UA Server]
+                            end
+
+                            PLC1 & PLC2 --> GW
+
+                            %% Tầng Publisher (Background Service)
+                            subgraph Publish_Process [Luồng Publish]
+                            WorkerPub[".NET Background Worker (Publisher)"]
+                            GW -->|Fetch/Listen| WorkerPub
+                            WorkerPub -->|Publish Message| RMQ{RabbitMQ}
+                            end
+
+                            %% Tầng Consumer & Storage
+                            subgraph Consumer_Process [Luồng Consume]
+                            WorkerSub[".NET Worker Service (Subscriber)"]
+                            RMQ -->|Queue| WorkerSub
+                            WorkerSub --> DB[(MongoDB / Time-Series)]
+                            end
+
+                            %% Tầng hiển thị
+                            WorkerSub -->|Real-time Signal| SR[SignalR Hub]
+                            SR --> Dashboard([Dashboard Giám sát])
+
+                            %% Định dạng Style
+                            style WorkerPub fill:#f1f5f9,stroke:#2563eb,stroke-width:2px
+                            style RMQ fill:#ff6600,color:#fff,stroke-width:2px
+                            style SR fill:#2563eb,color:#fff
+                            style Device_Layer fill:#f8fafc,stroke:#64748b,stroke-dasharray: 5 5
+                            style Gateway_Layer fill:#f1f5f9,stroke:#1e293b
+                            style GW fill:#1e293b,color:#fff
+                            style Dashboard fill:#10b981,color:#fff
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="project-card">
                 <h3>Hệ sinh thái HIS & Giải pháp Y tế thông minh (YBĐT, QMS, Kiosk)</h3>
@@ -639,7 +697,7 @@
                 <p><strong>Thành tựu:</strong> Triển khai thành công tại BVĐK khu vực Long Khánh và xây dựng
                     Văn phòng trải nghiệm giải pháp y tế thông minh (CXC).</p>
                 <div class="diagram-container">
-                    <div class="mermaid">
+                    <div class="mermaid" style="display: flex; justify-content: center;">
                         graph TD
                         User((Bệnh nhân)) --> App[App YBĐT - Flutter]
                         User --> Kiosk[Kiosk/QMS - .NET]
